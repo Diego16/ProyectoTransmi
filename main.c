@@ -1,8 +1,22 @@
 #include <stdio.h>
-#include <stdlib.h>
-
+#include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+struct Bus
+{
+    int codigo;
+    int pasajeros;
+    int capacidad;
+};
+struct Estacion
+{
+    int codigo;
+    int pasajeros;
+    int capacidad;
+};
 int main()
 {
-    printf("Hello world!\n");
+	pid_t pidBuses, pidEstaciones;
     return 0;
 }
