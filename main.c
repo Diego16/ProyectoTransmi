@@ -212,5 +212,23 @@ void salirEstacion(Estacion* x){
 }
 void VagonBus(Bus z,int es,int vag ){
 	z.ruta[es]->vags[vag];
+	if (!(x->vags[0].sem)){
+		x->vags[0].sem=true;
+		int pj=x->vags[0].pasajeros;
+		if (pj>0){
+			x->vags[0].pasajeros=pj-1;
+		}
+		x->vags[0].sem=false;
+	}
+	while ((x->vags[1].sem)){
 
+	}
+	if (!(x->vags[1].sem)){
+		x->vags[1].sem=true;
+		int pj=x->vags[1].pasajeros;
+		if (pj>0){
+			x->vags[1].pasajeros=pj-1;
+		}
+		x->vags[1].sem=false;
+	}
 }
