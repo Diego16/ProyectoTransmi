@@ -1,0 +1,8 @@
+# depslib dependency file v1.0
+1495206884 source:/Users/diegogustavo/Documents/ProyectoTransmi/main.c
+	<stdio.h>
+	<string.h>
+	<sys/types.h>
+	<sys/wait.h>
+	<unistd.h>
+
