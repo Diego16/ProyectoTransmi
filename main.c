@@ -37,7 +37,6 @@ void VagonBus(Estacion & x, Bus & z,bool destino);
 void BusVagon(Estacion & x, Bus & z,bool destino);
 void total(Estacion & x);
 void opBus(Estacion & x, Bus & z,bool destino);
-
 const int vgcap=400;
 const int hasta=20;
 const int hasta2=5;
@@ -53,6 +52,12 @@ int main ()
     Clave = ftok ("/bin/ls", 33);
     Id_Memoria = shmget (Clave, sizeof(Estacion)*10, 0777 | IPC_CREAT);
     Memoria = (Estacion *)shmat (Id_Memoria, (char *)0, 0);
+    key_t Clavebool;
+    int Id_Memoriabool;
+    bool *Memoriabool = NULL;
+    Clavebool= ftok ("/bin/ls", 34);
+    Id_Memoriabool = shmget (Clave, sizeof(bool), 0777 | IPC_CREAT);
+    Memoriabool = (bool *)shmat (Id_Memoriabool, (char *)0, 0);
     Estacion PortalU=crearEstacion("PortalUsme");
     Estacion calle13=crearEstacion("calle13");
     Estacion calle19=crearEstacion("calle19");
@@ -95,6 +100,12 @@ int main ()
             Clave = ftok ("/bin/ls", 33);
             Id_Memoria = shmget (Clave, sizeof(Estacion)*10, 0777);
             Memoria = (Estacion *)shmat (Id_Memoria, (char *)0, 0);
+            key_t Clavebool;
+            int Id_Memoriabool;
+            bool *Memoriabool = NULL;
+            Clavebool= ftok ("/bin/ls", 34);
+            Id_Memoriabool = shmget (Clave, sizeof(bool), 0777);
+            Memoriabool = (bool *)shmat (Id_Memoriabool, (char *)0, 0);
             bool sinfin=1;
             while (sinfin)
             {
@@ -130,6 +141,12 @@ int main ()
             Clave = ftok ("/bin/ls", 33);
             Id_Memoria = shmget (Clave, sizeof(Estacion)*10, 0777);
             Memoria = (Estacion *)shmat (Id_Memoria, (char *)0, 0);
+            key_t Clavebool;
+            int Id_Memoriabool;
+            bool *Memoriabool = NULL;
+            Clavebool= ftok ("/bin/ls", 34);
+            Id_Memoriabool = shmget (Clave, sizeof(bool), 0777);
+            Memoriabool = (bool *)shmat (Id_Memoriabool, (char *)0, 0);
             bool sinfin=1;
             for (int k=0; k<a1.paradas; k++)
             {
@@ -150,6 +167,7 @@ int main ()
                 }
             }
             shmdt ((char *)Memoria);
+            shmdt ((char *)Memoriabool);
 
         }
     }
@@ -172,6 +190,12 @@ int main ()
             Clave = ftok ("/bin/ls", 33);
             Id_Memoria = shmget (Clave, sizeof(Estacion)*10, 0777);
             Memoria = (Estacion *)shmat (Id_Memoria, (char *)0, 0);
+            key_t Clavebool;
+            int Id_Memoriabool;
+            bool *Memoriabool = NULL;
+            Clavebool= ftok ("/bin/ls", 34);
+            Id_Memoriabool = shmget (Clave, sizeof(bool), 0777);
+            Memoriabool = (bool *)shmat (Id_Memoriabool, (char *)0, 0);
             bool sinfin=1;
             for (int k=0; k<a1.paradas; k++)
             {
@@ -192,12 +216,14 @@ int main ()
                 }
             }
             shmdt ((char *)Memoria);
+            shmdt ((char *)Memoriabool);
         }
     }
     shmdt ((char *)Memoria);
-
+    shmdt ((char *)Memoriabool);
     return 0;
 }
+
 Estacion crearEstacion (char *name)
 {
     Estacion p;
@@ -297,6 +323,7 @@ void entrarAEstacion(Estacion & x)
     }
 
 }
+
 void salirEstacion(Estacion & x)
 {
     int salen;
@@ -358,6 +385,7 @@ void salirEstacion(Estacion & x)
 
 
 }
+
 void VagonBus(Estacion & x, Bus & z,bool destino)
 {
     int vg;
@@ -423,6 +451,7 @@ void BusVagon(Estacion & x, Bus & z,bool destino)
         }
     }
 }
+
 void total(Estacion & x)
 {
     while ((x.vags[0].sem))
@@ -452,6 +481,7 @@ void total(Estacion & x)
     x.vags[0].sem=false;
 
 }
+
 void opBus(Estacion & x, Bus & z,bool destino)
 {
     int vg;
@@ -483,7 +513,4 @@ void opBus(Estacion & x, Bus & z,bool destino)
         }
         x.vags[vg].sem=false;
     }
-
-
-
 }
