@@ -7,41 +7,42 @@
 #include <time.h>
 #include <sys/shm.h>
 #include <signal.h>
+#include <stdbool.h>
 
-struct Vagon
+typedef struct Vagon
 {
     int pasajeros;
     bool sem;
-};
+} Vagon;
 
-struct Estacion
+typedef struct Estacion
 {
     char *nombre;
     int pasajeros;
     Vagon vags[2];
-};
+} Estacion;
 
-struct Bus
+typedef struct Bus
 {
     int placa;
     int pasajeros;
     int capacidad;
     int paradas;
     int ruta[10];
-};
+} Bus;
 
 Estacion crearEstacion (char *name);
 Bus crearBus(int id,int cap,int r[],int tam);
-void entrarAEstacion(Estacion & x);
-void salirEstacion(Estacion & x);
-void VagonBus(Estacion & x, Bus & z,bool destino);
-void BusVagon(Estacion & x, Bus & z,bool destino);
-void total(Estacion & x);
-void opBus(Estacion & x, Bus & z,bool destino);
+void entrarAEstacion(Estacion * x);
+void salirEstacion(Estacion * x);
+void VagonBus(Estacion * x, Bus * z,bool destino);
+void BusVagon(Estacion * x, Bus * z,bool destino);
+void total(Estacion * x);
+void opBus(Estacion * x, Bus * z,bool destino);
 const int vgcap=400;
 const int hasta=20;
 const int hasta2=5;
-const int dormir=1000000;
+const int dormir=100000;
 int main ()
 {
 
@@ -53,12 +54,6 @@ int main ()
     Clave = ftok ("/bin/ls", 33);
     Id_Memoria = shmget (Clave, sizeof(Estacion)*10, 0777 | IPC_CREAT);
     Memoria = (Estacion *)shmat (Id_Memoria, (char *)0, 0);
-    key_t Clavebool;
-    int Id_Memoriabool;
-    bool *Memoriabool = NULL;
-    Clavebool= ftok ("/bin/ls", 34);
-    Id_Memoriabool = shmget (Clave, sizeof(bool), 0777 | IPC_CREAT);
-    Memoriabool = (bool *)shmat (Id_Memoriabool, (char *)0, 0);
     Estacion PortalU=crearEstacion("PortalUsme");
     Estacion calle13=crearEstacion("calle13");
     Estacion calle19=crearEstacion("calle19");
@@ -71,7 +66,7 @@ int main ()
     Estacion calle72=crearEstacion("calle72");
     Estacion calle85=crearEstacion("calle85");
     Estacion PortalN=crearEstacion("PortalNorte");
-    Memoria[0]=calle45;
+    Memoria[0]=PortalU;
     Memoria[1]=calle13;
     Memoria[2]=calle19;
     Memoria[3]=calle26;
@@ -101,22 +96,16 @@ int main ()
             Clave = ftok ("/bin/ls", 33);
             Id_Memoria = shmget (Clave, sizeof(Estacion)*10, 0777);
             Memoria = (Estacion *)shmat (Id_Memoria, (char *)0, 0);
-            key_t Clavebool;
-            int Id_Memoriabool;
-            bool *Memoriabool = NULL;
-            Clavebool= ftok ("/bin/ls", 34);
-            Id_Memoriabool = shmget (Clave, sizeof(bool), 0777);
-            Memoriabool = (bool *)shmat (Id_Memoriabool, (char *)0, 0);
             bool sinfin=1;
-            while (Memoriabool[0])
+            while (sinfin)
             {
-                entrarAEstacion(Memoria[est]);
-                total(Memoria[est]);
+                entrarAEstacion(&Memoria[est]);
+                total(&Memoria[est]);
                 srand(time(NULL));
                 int random=rand()%10; //random entre 0 y 9 para el sleep
                 usleep(dormir*random);
-                salirEstacion(Memoria[est]);
-                total(Memoria[est]);
+                salirEstacion(&Memoria[est]);
+                total(&Memoria[est]);
                 srand(time(NULL));
                 int random2=rand()%10; //random entre 0 y 9 para el sleep
                 usleep(dormir*random2);
@@ -124,10 +113,6 @@ int main ()
         }
         else
         {
-        	while(1!=0)
-        	{
-        		usleep(2);
-        	}
         }
     }
     for (int i=10; i<16; i++)
@@ -150,12 +135,6 @@ int main ()
             Clave = ftok ("/bin/ls", 33);
             Id_Memoria = shmget (Clave, sizeof(Estacion)*10, 0777);
             Memoria = (Estacion *)shmat (Id_Memoria, (char *)0, 0);
-            key_t Clavebool;
-            int Id_Memoriabool;
-            bool *Memoriabool = NULL;
-            Clavebool= ftok ("/bin/ls", 34);
-            Id_Memoriabool = shmget (Clave, sizeof(bool), 0777);
-            Memoriabool = (bool *)shmat (Id_Memoriabool, (char *)0, 0);
             bool sinfin=1;
             for (k=0; k<a1.paradas; k++)
             {
@@ -164,29 +143,21 @@ int main ()
                 usleep(dormir*random);
                 if (k==(a1.paradas-1))
                 {
-                    opBus(Memoria[a1.ruta[k]],a1,1);
+                    opBus(&Memoria[a1.ruta[k]],&a1,1);
                 }
                 else
                 {
-                    opBus(Memoria[a1.ruta[k]],a1,0);
+                    opBus(&Memoria[a1.ruta[k]],&a1,0);
                 }
                 if (k==a1.paradas-1)
                 {
                     k=0;
                 }
-                if(i==15&&k==a1.paradas-1)
-                    Memoriabool[0]=0;
             }
             shmdt ((char *)Memoria);
-            shmdt ((char *)Memoriabool);
-
         }
         else
         {
-        	while(1!=0)
-        	{
-        		usleep(2);
-        	}
         }
     }
     for (int i=20; i<26; i++)
@@ -209,13 +180,6 @@ int main ()
             Clave = ftok ("/bin/ls", 33);
             Id_Memoria = shmget (Clave, sizeof(Estacion)*10, 0777);
             Memoria = (Estacion *)shmat (Id_Memoria, (char *)0, 0);
-            key_t Clavebool;
-            int Id_Memoriabool;
-            bool *Memoriabool = NULL;
-            Clavebool= ftok ("/bin/ls", 34);
-            Id_Memoriabool = shmget (Clave, sizeof(bool), 0777);
-            Memoriabool = (bool *)shmat (Id_Memoriabool, (char *)0, 0);
-            bool sinfin=1;
             for (k=0; k<a1.paradas; k++)
             {
                 srand(time(NULL));
@@ -223,11 +187,11 @@ int main ()
                 usleep(dormir*random);
                 if (k==(a1.paradas-1))
                 {
-                    opBus(Memoria[a1.ruta[k]],a1,1);
+                    opBus(&Memoria[a1.ruta[k]],&a1,1);
                 }
                 else
                 {
-                    opBus(Memoria[a1.ruta[k]],a1,0);
+                    opBus(&Memoria[a1.ruta[k]],&a1,0);
                 }
                 if (k==a1.paradas-1)
                 {
@@ -235,18 +199,12 @@ int main ()
                 }
             }
             shmdt ((char *)Memoria);
-            shmdt ((char *)Memoriabool);
         }
         else
         {
-        	while(1!=0)
-        	{
-        		usleep(2);
-        	}
         }
     }
     shmdt ((char *)Memoria);
-    shmdt ((char *)Memoriabool);
     return 0;
 }
 
@@ -279,28 +237,28 @@ Bus crearBus(int id,int cap,int r[],int tam)
     return a1;
 }
 
-void entrarAEstacion(Estacion & x)
+void entrarAEstacion(Estacion * x)
 {
     int entran1;
     int entran2;
-    while ((x.vags[0].sem))
+    while ((x->vags[0].sem))
     {
         srand(time(NULL));
         int random=rand()%10; //random entre 0 y 9 para el sleep
         usleep(100*random);
     }
-    if (!(x.vags[0].sem))
+    if (!(x->vags[0].sem))
     {
-        x.vags[0].sem=true;
+        x->vags[0].sem=true;
         srand(time(NULL));
         int random=rand()%hasta;
         entran1=random;
         bool secumple=false;
         while(!secumple)
         {
-            if ((entran1+x.vags[0].pasajeros)<=vgcap)
+            if ((entran1+x->vags[0].pasajeros)<=vgcap)
             {
-                x.vags[0].pasajeros=x.vags[0].pasajeros+entran1;
+                x->vags[0].pasajeros=x->vags[0].pasajeros+entran1;
                 secumple=true;
                 break;
             }
@@ -312,27 +270,27 @@ void entrarAEstacion(Estacion & x)
             entran1--;
         }
         printf("Personas Entrando |%d| ",entran1);
-        printf("Vg1 Estacion |%s|\n", x.nombre);
-        x.vags[0].sem=false;
+        printf("Vg1 Estacion |%s|\n", x->nombre);
+        x->vags[0].sem=false;
     }
-    while ((x.vags[1].sem))
+    while ((x->vags[1].sem))
     {
         srand(time(NULL));
         int random=rand()%10; //random entre 0 y 9 para el sleep
         usleep(100*random);
     }
-    if (!(x.vags[1].sem))
+    if (!(x->vags[1].sem))
     {
-        x.vags[1].sem=true;
+        x->vags[1].sem=true;
         srand(time(NULL));
         int random=rand()%hasta;
         entran2=random;
         bool secumple=false;
         while(!secumple)
         {
-            if ((entran2+x.vags[1].pasajeros)<=vgcap)
+            if ((entran2+x->vags[1].pasajeros)<=vgcap)
             {
-                x.vags[1].pasajeros=x.vags[1].pasajeros+entran2;
+                x->vags[1].pasajeros=x->vags[1].pasajeros+entran2;
                 secumple=true;
                 break;
             }
@@ -344,78 +302,78 @@ void entrarAEstacion(Estacion & x)
             entran2--;
         }
         printf("Personas Entrando |%d| ",entran2);
-        printf("vg2 Estacion |%s|\n", x.nombre);
-        x.vags[1].sem=false;
+        printf("vg2 Estacion |%s|\n", x->nombre);
+        x->vags[1].sem=false;
     }
 
 }
 
-void salirEstacion(Estacion & x)
+void salirEstacion(Estacion * x)
 {
     int salen;
     int salen1;
-    while ((x.vags[0].sem))
+    while ((x->vags[0].sem))
     {
         srand(time(NULL));
         int random=rand()%10; //random entre 0 y 9 para el sleep
         usleep(100*random);
     }
-    if (!(x.vags[0].sem))
+    if (!(x->vags[0].sem))
     {
-        x.vags[0].sem=true;
+        x->vags[0].sem=true;
         srand(time(NULL));
         int random=rand()%hasta2;
         salen=random;
         bool secumple=false;
         while (!secumple)
         {
-            if ((x.vags[0].pasajeros-salen)>=0)
+            if ((x->vags[0].pasajeros-salen)>=0)
             {
-                x.vags[0].pasajeros=x.vags[0].pasajeros-salen;
+                x->vags[0].pasajeros=x->vags[0].pasajeros-salen;
                 secumple=true;
                 break;
             }
             salen--;
         }
         printf("Personas Saliendo |%d| ",salen);
-        printf("Vg1 Estacion |%s|\n", x.nombre);
-        x.vags[0].sem=false;
+        printf("Vg1 Estacion |%s|\n", x->nombre);
+        x->vags[0].sem=false;
     }
-    while ((x.vags[1].sem))
+    while ((x->vags[1].sem))
     {
         srand(time(NULL));
         int random=rand()%10; //random entre 0 y 9 para el sleep
         usleep(100*random);
     }
-    if (!(x.vags[1].sem))
+    if (!(x->vags[1].sem))
     {
-        x.vags[1].sem=true;
+        x->vags[1].sem=true;
         srand(time(NULL));
         int random=rand()%hasta2;
         salen1=random;
         bool secumple=false;
         while (!secumple)
         {
-            if ((x.vags[1].pasajeros-salen1)>=0)
+            if ((x->vags[1].pasajeros-salen1)>=0)
             {
-                x.vags[1].pasajeros=x.vags[1].pasajeros-salen1;
+                x->vags[1].pasajeros=x->vags[1].pasajeros-salen1;
                 secumple=true;
                 break;
             }
             salen1--;
         }
         printf("Personas Saliendo |%d| ",salen1);
-        printf("Vg2 Estacion |%s|\n", x.nombre);
-        x.vags[1].sem=false;
+        printf("Vg2 Estacion |%s|\n", x->nombre);
+        x->vags[1].sem=false;
     }
 
 
 }
 
-void VagonBus(Estacion & x, Bus & z,bool destino)
+void VagonBus(Estacion * x, Bus * z,bool destino)
 {
     int vg;
-    if (z.paradas<10)
+    if (z->paradas<10)
     {
         vg=0;
     }
@@ -428,33 +386,33 @@ void VagonBus(Estacion & x, Bus & z,bool destino)
     int bajar= random;
     if (destino)
     {
-        bajar=z.pasajeros;
-        z.pasajeros=z.pasajeros-bajar;
-        x.vags[vg].pasajeros=x.vags[vg].pasajeros+bajar;
+        bajar=z->pasajeros;
+        z->pasajeros=z->pasajeros-bajar;
+        x->vags[vg].pasajeros=x->vags[vg].pasajeros+bajar;
     }
     else if (!destino)
     {
         bool secumple=false;
         while (!secumple)
         {
-            if (((x.vags[vg].pasajeros+bajar)<=vgcap)&&((z.pasajeros-bajar)>=0))
+            if (((x->vags[vg].pasajeros+bajar)<=vgcap)&&((z->pasajeros-bajar)>=0))
             {
-                z.pasajeros=z.pasajeros-bajar;
-                x.vags[vg].pasajeros=x.vags[vg].pasajeros+bajar;
+                z->pasajeros=z->pasajeros-bajar;
+                x->vags[vg].pasajeros=x->vags[vg].pasajeros+bajar;
                 secumple=true;
                 break;
             }
             bajar--;
         }
     }
-    printf("Se Bajaron a |%s| ", x.nombre);
+    printf("Se Bajaron a |%s| ", x->nombre);
     printf(" %d ", bajar);
-    printf(" De bus |%d|\n", z.placa);
+    printf(" De bus |%d|\n", z->placa);
 }
-void BusVagon(Estacion & x, Bus & z,bool destino)
+void BusVagon(Estacion * x, Bus * z,bool destino)
 {
     int vg;
-    if (z.paradas<10)
+    if (z->paradas<10)
     {
         vg=0;
     }
@@ -465,53 +423,53 @@ void BusVagon(Estacion & x, Bus & z,bool destino)
     srand(time(NULL));
     int random=rand()%hasta;
     int subir=random;
-    if (x.vags[vg].pasajeros>subir)
+    if (x->vags[vg].pasajeros>subir)
     {
-        if (z.capacidad>(z.pasajeros+subir))
+        if (z->capacidad>(z->pasajeros+subir))
         {
-            x.vags[vg].pasajeros=x.vags[vg].pasajeros-subir;
-            z.pasajeros=z.pasajeros+subir;
-            printf("Se subieron de |%s| ", x.nombre);
+            x->vags[vg].pasajeros=x->vags[vg].pasajeros-subir;
+            z->pasajeros=z->pasajeros+subir;
+            printf("Se subieron de |%s| ", x->nombre);
             printf(" %d ", subir);
-            printf(" a bus |%d|\n", z.placa);
+            printf(" a bus |%d|\n", z->placa);
         }
     }
 }
 
-void total(Estacion & x)
+void total(Estacion * x)
 {
-    while ((x.vags[0].sem))
+    while ((x->vags[0].sem))
     {
         srand(time(NULL));
         int random=rand()%10; //random entre 0 y 9 para el sleep
         usleep(100*random);
     }
-    if (!(x.vags[0].sem))
+    if (!(x->vags[0].sem))
     {
-        x.vags[0].sem=true;
+        x->vags[0].sem=true;
     }
-    while ((x.vags[1].sem))
+    while ((x->vags[1].sem))
     {
         srand(time(NULL));
         int random=rand()%10; //random entre 0 y 9 para el sleep
         usleep(100*random);
     }
-    if (!(x.vags[1].sem))
+    if (!(x->vags[1].sem))
     {
-        x.vags[1].sem=true;
+        x->vags[1].sem=true;
     }
-    int total=x.vags[0].pasajeros+x.vags[1].pasajeros;
-    printf("Total en |%s| ", x.nombre);
+    int total=x->vags[0].pasajeros+x->vags[1].pasajeros;
+    printf("Total en |%s| ", x->nombre);
     printf("%d\n", total);
-    x.vags[1].sem=false;
-    x.vags[0].sem=false;
+    x->vags[1].sem=false;
+    x->vags[0].sem=false;
 
 }
 
-void opBus(Estacion & x, Bus & z,bool destino)
+void opBus(Estacion * x, Bus * z,bool destino)
 {
     int vg;
-    if (z.paradas<10)
+    if (z->paradas<10)
     {
         vg=0;
     }
@@ -519,15 +477,15 @@ void opBus(Estacion & x, Bus & z,bool destino)
     {
         vg=1;
     }
-    while ((x.vags[vg].sem))
+    while ((x->vags[vg].sem))
     {
         srand(time(NULL));
         int random=rand()%10; //random entre 0 y 9 para el sleep
         usleep(100*random);
     }
-    if (!(x.vags[vg].sem))
+    if (!(x->vags[vg].sem))
     {
-        x.vags[vg].sem=true;
+        x->vags[vg].sem=true;
         if (!destino)
         {
             BusVagon(x,z,destino);
@@ -537,6 +495,6 @@ void opBus(Estacion & x, Bus & z,bool destino)
         {
             VagonBus(x,z,destino);
         }
-        x.vags[vg].sem=false;
+        x->vags[vg].sem=false;
     }
 }
