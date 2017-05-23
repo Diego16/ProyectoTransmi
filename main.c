@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <sys/shm.h>
+#include <signal.h>
 
 struct Vagon
 {
@@ -107,7 +108,7 @@ int main ()
             Id_Memoriabool = shmget (Clave, sizeof(bool), 0777);
             Memoriabool = (bool *)shmat (Id_Memoriabool, (char *)0, 0);
             bool sinfin=1;
-            while (sinfin)
+            while (Memoriabool[0])
             {
                 entrarAEstacion(Memoria[est]);
                 total(Memoria[est]);
@@ -121,10 +122,18 @@ int main ()
                 usleep(dormir*random2);
             }
         }
+        else
+        {
+        	while(1!=0)
+        	{
+        		usleep(2);
+        	}
+        }
     }
     for (int i=10; i<16; i++)
     {
         Bus a1;
+        int k=0;
         if (i%2==0)
         {
             a1= crearBus(i,200,lechero,10);
@@ -148,7 +157,7 @@ int main ()
             Id_Memoriabool = shmget (Clave, sizeof(bool), 0777);
             Memoriabool = (bool *)shmat (Id_Memoriabool, (char *)0, 0);
             bool sinfin=1;
-            for (int k=0; k<a1.paradas; k++)
+            for (k=0; k<a1.paradas; k++)
             {
                 srand(time(NULL));
                 int random=rand()%10; //random entre 0 y 9 para el sleep
@@ -165,15 +174,25 @@ int main ()
                 {
                     k=0;
                 }
+                if(i==15&&k==a1.paradas-1)
+                    Memoriabool[0]=0;
             }
             shmdt ((char *)Memoria);
             shmdt ((char *)Memoriabool);
 
         }
+        else
+        {
+        	while(1!=0)
+        	{
+        		usleep(2);
+        	}
+        }
     }
     for (int i=20; i<26; i++)
     {
         Bus a1;
+        int k=0;
         if (i%2==0)
         {
             a1= crearBus(i,200,expreso1,6);
@@ -197,7 +216,7 @@ int main ()
             Id_Memoriabool = shmget (Clave, sizeof(bool), 0777);
             Memoriabool = (bool *)shmat (Id_Memoriabool, (char *)0, 0);
             bool sinfin=1;
-            for (int k=0; k<a1.paradas; k++)
+            for (k=0; k<a1.paradas; k++)
             {
                 srand(time(NULL));
                 int random=rand()%10; //random entre 0 y 9 para el sleep
@@ -217,6 +236,13 @@ int main ()
             }
             shmdt ((char *)Memoria);
             shmdt ((char *)Memoriabool);
+        }
+        else
+        {
+        	while(1!=0)
+        	{
+        		usleep(2);
+        	}
         }
     }
     shmdt ((char *)Memoria);
